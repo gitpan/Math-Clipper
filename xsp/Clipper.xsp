@@ -1,0 +1,102 @@
+
+
+%module{Math::Clipper};
+%package{Math::Clipper};
+
+%{
+#include <myinit.h>
+
+PROTOTYPES: DISABLE
+
+IV
+_constant()
+  ALIAS:
+    CT_INTERSECTION = ctIntersection
+    CT_UNION = ctUnion
+    CT_DIFFERENCE = ctDifference
+    CT_XOR = ctXor
+    PT_SUBJECT = ptSubject
+    PT_CLIP = ptClip
+    PFT_EVENODD = pftEvenOdd
+    PFT_NONZERO = pftNonZero
+  CODE:
+    RETVAL = ix;
+  OUTPUT: RETVAL
+
+%}
+
+%name{Math::Clipper}
+class Clipper {
+  Clipper();
+  ~Clipper();
+
+%{
+TPolyPolygon*
+execute(THIS, clipType, subjFillType = pftEvenOdd, clipFillType = pftEvenOdd)
+    Clipper* THIS
+    TClipType clipType
+    TPolyFillType subjFillType
+    TPolyFillType clipFillType
+  CODE:
+    RETVAL = new clipper::TPolyPolygon();
+    THIS->Execute(clipType, *RETVAL, subjFillType, clipFillType);
+  OUTPUT:
+    RETVAL
+    
+%}
+
+  %name{get_force_orientation}
+    bool ForceOrientation();
+  %name{set_force_orientation}
+    void ForceOrientation(bool value);
+
+// We don't expose this since we save the TPolyType stuff entirely that way!
+//  %name{add_polygon}
+//    void AddPolygon(const TPolygon &pg, TPolyType polyType);
+
+%{
+
+void
+add_subject_polygon(self, poly)
+    Clipper* self
+    TPolygon* poly
+  PPCODE:
+    self->AddPolygon(*poly, ptSubject);
+    delete poly;
+
+void
+add_clip_polygon(self, poly)
+    Clipper* self
+    TPolygon* poly
+  PPCODE:
+    self->AddPolygon(*poly, ptClip);
+    delete poly;
+
+void
+add_subject_poly_polygon(self, poly)
+    Clipper* self
+    TPolyPolygon* poly
+  PPCODE:
+    self->AddPolyPolygon(*poly, ptSubject);
+    delete poly;
+
+void
+add_clip_poly_polygon(self, poly)
+    Clipper* self
+    TPolyPolygon* poly
+  PPCODE:
+    self->AddPolyPolygon(*poly, ptClip);
+    delete poly;
+
+%}
+
+  %name{add_poly_polygon}
+    void AddPolyPolygon(const TPolyPolygon &ppg, TPolyType polyType)
+      %cleanup{% delete ppg; %};
+
+  %name{clear}
+    void Clear();
+};
+
+
+
