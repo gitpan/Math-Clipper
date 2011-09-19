@@ -29,37 +29,50 @@ _constant()
 class Clipper {
   Clipper();
   ~Clipper();
+  %name{use_full_coordinate_range} void UseFullCoordinateRange(bool newVal);
 
 %{
-TPolyPolygon*
+clipper::Polygons*
 execute(THIS, clipType, subjFillType = pftEvenOdd, clipFillType = pftEvenOdd)
     Clipper* THIS
-    TClipType clipType
-    TPolyFillType subjFillType
-    TPolyFillType clipFillType
+    ClipType clipType
+    PolyFillType subjFillType
+    PolyFillType clipFillType
   CODE:
-    RETVAL = new clipper::TPolyPolygon();
+    RETVAL = new clipper::Polygons();
     THIS->Execute(clipType, *RETVAL, subjFillType, clipFillType);
   OUTPUT:
     RETVAL
     
+clipper::ExPolygons*
+ex_execute(THIS, clipType, subjFillType = pftEvenOdd, clipFillType = pftEvenOdd)
+    Clipper* THIS
+    ClipType clipType
+    PolyFillType subjFillType
+    PolyFillType clipFillType
+  CODE:
+    RETVAL = new clipper::ExPolygons();
+    THIS->Execute(clipType, *RETVAL, subjFillType, clipFillType);
+  OUTPUT:
+    RETVAL
 %}
 
-  %name{get_force_orientation}
-    bool ForceOrientation();
-  %name{set_force_orientation}
-    void ForceOrientation(bool value);
+// No longer in v4.X
+//  %name{get_force_orientation}
+//    bool ForceOrientation();
+//  %name{set_force_orientation}
+//    void ForceOrientation(bool value);
 
-// We don't expose this since we save the TPolyType stuff entirely that way!
+// We don't expose this since we save the PolyType stuff entirely that way!
 //  %name{add_polygon}
-//    void AddPolygon(const TPolygon &pg, TPolyType polyType);
+//    void AddPolygon(const Polygon &pg, PolyType polyType);
 
 %{
 
 void
 add_subject_polygon(self, poly)
     Clipper* self
-    TPolygon* poly
+    clipper::Polygon* poly
   PPCODE:
     self->AddPolygon(*poly, ptSubject);
     delete poly;
@@ -67,35 +80,63 @@ add_subject_polygon(self, poly)
 void
 add_clip_polygon(self, poly)
     Clipper* self
-    TPolygon* poly
+    clipper::Polygon* poly
   PPCODE:
     self->AddPolygon(*poly, ptClip);
     delete poly;
 
 void
-add_subject_poly_polygon(self, poly)
+add_subject_polygons(self, polys)
     Clipper* self
-    TPolyPolygon* poly
+    clipper::Polygons* polys
   PPCODE:
-    self->AddPolyPolygon(*poly, ptSubject);
-    delete poly;
+    self->AddPolygons(*polys, ptSubject);
+    delete polys;
 
 void
-add_clip_poly_polygon(self, poly)
+add_clip_polygons(self, polys)
     Clipper* self
-    TPolyPolygon* poly
+    clipper::Polygons* polys
   PPCODE:
-    self->AddPolyPolygon(*poly, ptClip);
-    delete poly;
+    self->AddPolygons(*polys, ptClip);
+    delete polys;
 
 %}
+// In Clipper 4.3.0, IsClockwise() is misnamed - gives opposite results.
+// Author is reluctant to fix it.
+// But double check that when updating this module or the Clipper library.
+%{
 
-  %name{add_poly_polygon}
-    void AddPolyPolygon(const TPolyPolygon &ppg, TPolyType polyType)
-      %cleanup{% delete ppg; %};
+double
+is_counter_clockwise(polygon, UseFullInt64Range = 1)
+    clipper::Polygon* polygon
+    bool UseFullInt64Range
+  CODE:
+    RETVAL = clipper::IsClockwise(*polygon, UseFullInt64Range);
+  OUTPUT: RETVAL
+
+double
+area(polygon, UseFullInt64Range = 1)
+    clipper::Polygon* polygon
+    bool UseFullInt64Range
+  CODE:
+    RETVAL = clipper::Area(*polygon, UseFullInt64Range);
+  OUTPUT: RETVAL
+
+clipper::Polygons*
+_offset(polygons, delta)
+    clipper::Polygons* polygons
+    const float delta
+  CODE:
+    RETVAL = new clipper::Polygons();
+    clipper::OffsetPolygons(*polygons, *RETVAL, delta);
+  OUTPUT:
+    RETVAL
+%}
 
   %name{clear}
     void Clear();
+
 };
 
 
