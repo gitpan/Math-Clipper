@@ -7,11 +7,14 @@ use Carp qw(croak carp);
 use Config;
 
 use Exporter();
-our $VERSION = '1.00';
+our $VERSION;
 our @ISA = qw(Exporter);
 
-require XSLoader;
-XSLoader::load('Math::Clipper', $VERSION);
+BEGIN {
+    use XSLoader;
+    $VERSION = '1.01';
+    XSLoader::load('Math::Clipper', $VERSION);
+}
 
 # TODO: keep in sync with docs below and xsp/Clipper.xsp
 
@@ -19,6 +22,7 @@ our %EXPORT_TAGS = (
     cliptypes     => [qw/CT_INTERSECTION CT_UNION CT_DIFFERENCE CT_XOR/],
     #polytypes     => [qw/PT_SUBJECT PT_CLIP/],
     polyfilltypes => [qw/PFT_EVENODD PFT_NONZERO/],
+    jointypes     => [qw/JT_MITER JT_ROUND JT_SQUARE/],
     utilities => [qw/area offset is_counter_clockwise integerize_coordinate_sets unscale_coordinate_sets/],
 );
 
@@ -44,13 +48,22 @@ my %intspecs = (
 my $is64safe = ((defined($Config{use64bitint})   && $Config{use64bitint}   eq 'define') || $Config{longsize}   >= 8 ) &&
                ((defined($Config{uselongdouble}) && $Config{uselongdouble} eq 'define') || $Config{doublesize} >= 10);
 
+sub new {
+    my $class = shift;
+    my $clipper = $class->_new();
+    $clipper->use_full_coordinate_range(1);
+    return $clipper;
+}
+
 sub offset {
-	my $polygons = shift;
-	my $delta = shift;
-	my $scale = @_ ? shift:100;
+    my ($polygons, $delta, $scale, $jointype, $miterlimit) = @_;
+    $scale      ||= 100;
+	$jointype   ||= JT_MITER;
+	$miterlimit ||= 2;
+	
 	my $scalevec=[$scale,$scale];
 	my $polyscopy=[(map {[(map {[(map {$_*$scalevec->[0]} @{$_})]} @{$_})]} @{$polygons})];
-	my $ret = _offset($polyscopy,$delta*$scale);
+	my $ret = _offset($polyscopy,$delta*$scale, $jointype, $miterlimit);
 	unscale_coordinate_sets($scalevec , $ret) if @$ret;
 	return $ret;
 	}
@@ -425,7 +438,12 @@ the polygons to "unscale". The polygon coordinates will be updated in place.
 
 =head2 offset
 
-Takes a reference to an array of polygons, a positive or negative offset dimension, and, optionally, a scaling factor.
+    my $offset_polygons = offset($polygons, $distance);
+    my $offset_polygons = offset($polygons, $distance, $scale, $jointype, $miterlimit);
+
+Takes a reference to an array of polygons (C<$polygons>), a positive or negative offset dimension 
+(C<$distance>), and, optionally, a scaling factor (C<$scale>), a join type (C<$jointype>) and a numeric 
+angle limit for the C<JT_MITER> join type.
 
 The polygons will use the NONZERO fill strategy, so filled areas and holes can be specified by polygon winding order. 
 
@@ -437,9 +455,9 @@ The default scaling factor is 100. Setting the scaling factor higher will result
 
 Returns a new set of polygons, offset by the given dimension.
 
-    my $offset_polygons = offset($polygon, 5.5); # offset by 5.5
+    my $offset_polygons = offset($polygons, 5.5); # offset by 5.5
         or
-    my $offset_polygons = offset($polygon, 5.5, 1000); # smoother results, proliferation of points
+    my $offset_polygons = offset($polygons, 5.5, 1000); # smoother results, proliferation of points
 
 B<WARNING: >As you increase the scaling factor, the number of points grows quickly, and will happily consume all of your RAM.
 Large offset dimensions also contribute to a proliferation of points.
@@ -449,7 +467,10 @@ determines how many decimal digits you'll get in the results. It is not necessar
 and generally not desirable to use C<integerize_coordinate_sets> to prepare data for this function.
 
 When doing negative offsets, you may find the winding order of the results to be the opposite 
-of what you expect. Check it and change it if winding order is important in your application.
+of what you expect, although this seems to be fixed in recent Clipper versions. Check the order and change 
+it if it is important in your application.
+
+Join type can be one of C<JT_MITER>, C<JT_ROUND> or C<JT_SQUARE>.
 
 =head2 area
 
@@ -467,6 +488,11 @@ Determine if a polygon is wound counter clockwise. Returns true if it is, false 
     $poly = [ [0, 0] , [2, 0] , [1, 1] ]; # a counter clockwise wound polygon
     $direction = is_counter_clockwise($poly);
     # now $direction == 1
+
+Note that Math::Clipper assumes a coordinate system where the Y axis increases upward. If your
+program works with an inverted Y axis (for example, dealing with SVG), the return value of 
+C<is_counter_clockwise()> must be inverted: clockwise polygons become counter-clockwise and
+viceversa.
 
 =head1 NONZERO vs. EVENODD
 
@@ -511,14 +537,14 @@ L<http://sourceforge.net/projects/polyclipping/>
 
 =head1 VERSION
 
-This module was built around, and includes, Clipper version 4.3.0.
+This module was built around, and includes, Clipper version 4.4.4.
 
 =head1 AUTHOR
 
 The Perl module was written by:
 
-Steffen Mueller (E<lt>smueller@cpan.orgE<gt>) and
-Mike Sheldrake
+Steffen Mueller (E<lt>smueller@cpan.orgE<gt>),
+Mike Sheldrake and Alessandro Ranellucci (aar/alexrj)
 
 But the underlying library C<Clipper> was written by
 Angus Johnson. Check the SourceForge project page for

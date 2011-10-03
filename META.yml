@@ -1,7 +1,7 @@
 ---
 abstract: 'Polygon clipping in 2D'
 author:
-  - "Steffen Mueller (E<lt>smueller@cpan.orgE<gt>) and\r\nMike Sheldrake"
+  - "Steffen Mueller (E<lt>smueller@cpan.orgE<gt>),\nMike Sheldrake and Alessandro Ranellucci (aar/alexrj)"
 build_requires:
   ExtUtils::Typemaps::Default: 0.05
   ExtUtils::XSpp: 0.16
@@ -19,7 +19,7 @@ name: Math-Clipper
 provides:
   Math::Clipper:
     file: lib/Math/Clipper.pm
-    version: 1.00
+    version: 1.01
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.00
+version: 1.01
