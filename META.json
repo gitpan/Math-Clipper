@@ -16,7 +16,6 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::CBuilder" : "0",
             "ExtUtils::Typemaps::Default" : "0.05",
             "ExtUtils::XSpp" : "0.16",
             "Test::Deep" : "0"
@@ -33,7 +32,7 @@
    "provides" : {
       "Math::Clipper" : {
          "file" : "lib/Math/Clipper.pm",
-         "version" : "1.04"
+         "version" : "1.05"
       }
    },
    "release_status" : "stable",
@@ -42,5 +41,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "1.04"
+   "version" : "1.05"
 }
