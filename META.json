@@ -4,7 +4,7 @@
       "Steffen Mueller (E<lt>smueller@cpan.orgE<gt>),\nMike Sheldrake and Alessandro Ranellucci (aar/alexrj)"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110440",
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.120351",
    "license" : [
       "perl_5"
    ],
@@ -16,9 +16,10 @@
    "prereqs" : {
       "build" : {
          "requires" : {
+            "ExtUtils::CBuilder" : "0",
             "ExtUtils::Typemaps::Default" : "0.05",
             "ExtUtils::XSpp" : "0.16",
-            "Test::Deep" : 0
+            "Test::Deep" : "0"
          }
       },
       "configure" : {
@@ -32,7 +33,7 @@
    "provides" : {
       "Math::Clipper" : {
          "file" : "lib/Math/Clipper.pm",
-         "version" : "1.03"
+         "version" : "1.04"
       }
    },
    "release_status" : "stable",
@@ -41,5 +42,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "1.03"
+   "version" : "1.04"
 }
