@@ -12,7 +12,7 @@ our @ISA = qw(Exporter);
 
 BEGIN {
     use XSLoader;
-    $VERSION = '1.07';
+    $VERSION = '1.09';
     XSLoader::load('Math::Clipper', $VERSION);
 }
 
@@ -335,7 +335,7 @@ Returns the result as a reference to an array of polygons.
     my $result = $clipper->execute( CT_UNION );
 
 Parameters: the type of the clipping operation defined
-by one of the constants (C<CF_*>).
+by one of the constants (C<CT_*>).
 
 Additionally, you may define the polygon fill types (C<PFT_*>)
 of the subject and clipping polygons as second and third parameters
@@ -539,7 +539,7 @@ L<http://sourceforge.net/projects/polyclipping/>
 
 =head1 VERSION
 
-This module was built around, and includes, Clipper version 4.8.0.
+This module was built around, and includes, Clipper version 4.8.4.
 
 =head1 AUTHOR
 
