@@ -20,7 +20,7 @@ name: Math-Clipper
 provides:
   Math::Clipper:
     file: lib/Math/Clipper.pm
-    version: 1.09
+    version: 1.10
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.09
+version: 1.10
