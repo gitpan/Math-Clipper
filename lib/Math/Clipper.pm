@@ -12,7 +12,7 @@ our @ISA = qw(Exporter);
 
 BEGIN {
     use XSLoader;
-    $VERSION = '1.16';
+    $VERSION = '1.17';
     XSLoader::load('Math::Clipper', $VERSION);
 }
 
@@ -21,7 +21,7 @@ BEGIN {
 our %EXPORT_TAGS = (
     cliptypes     => [qw/CT_INTERSECTION CT_UNION CT_DIFFERENCE CT_XOR/],
     #polytypes     => [qw/PT_SUBJECT PT_CLIP/],
-    polyfilltypes => [qw/PFT_EVENODD PFT_NONZERO/],
+    polyfilltypes => [qw/PFT_EVENODD PFT_NONZERO PFT_POSITIVE PFT_NEGATIVE/],
     jointypes     => [qw/JT_MITER JT_ROUND JT_SQUARE/],
     utilities       => [qw/area offset is_counter_clockwise orientation integerize_coordinate_sets unscale_coordinate_sets
                     simplify_polygon simplify_polygons/],
@@ -245,6 +245,8 @@ during the clipping operation:
 
     PFT_EVENODD
     PFT_NONZERO
+    PFT_POSITIVE
+    PFT_NEGATIVE
 
 =head1 CONVENTIONS
 
@@ -542,7 +544,7 @@ L<http://sourceforge.net/projects/polyclipping/>
 
 =head1 VERSION
 
-This module was built around, and includes, Clipper version 4.10.0.
+This module was built around, and includes, Clipper version 5.0.3.
 
 =head1 AUTHOR
 
@@ -563,7 +565,7 @@ Copyright (C) 2010, 2011 by Steffen Mueller
 
 Copyright (C) 2011 by Mike Sheldrake
 
-Copyright (C) 2012 by Alessandro Ranellucci and Mike Sheldrake
+Copyright (C) 2012, 2013 by Alessandro Ranellucci and Mike Sheldrake
 
 
 but we are shipping a copy of the C<Clipper> C++ library, which
