@@ -1,5 +1,5 @@
 use Math::Clipper ':all';
-use Test::More tests=>8;
+use Test::More tests => 17;
 
 my $ccw = [
 [0,0],
@@ -42,3 +42,30 @@ map {
 	$asum+=Math::Clipper::area($_)
 	} @{$offpolys4};
 is($asum,((16 + 20) - 16),'area check for negative cw off');
+
+{
+    my $res = Math::Clipper::int_offset([$ccw], 1.0, 1, JT_MITER, 2);
+    ok @$res == 1, 'positive int_offset, on ccw';
+    is Math::Clipper::area($res->[0]), (16 + 20), 'area check for positive ccw int_offset';
+}
+
+{
+    my $res = Math::Clipper::int_offset([$ccw], -1.0, 1, JT_MITER, 2);
+    ok @$res == 1, 'negative int_offset, on ccw';
+    is Math::Clipper::area($res->[0]), 2*2, 'area check for negative ccw int_offset';
+}
+
+{
+    my $res = Math::Clipper::ex_int_offset([$ccw, $cw], 1.0, 1, JT_MITER, 2);
+    ok @$res == 1, 'ex_int_offset returned one item';
+    isa_ok $res->[0], 'HASH', 'ex_int_offset returned one ExPolygon';
+}
+
+{
+    my $res = Math::Clipper::ex_int_offset2([$ccw], 1.0, -1.0, 1, JT_MITER, 2);
+    ok @$res == 1, 'ex_int_offset2 returned one item';
+    isa_ok $res->[0], 'HASH', 'ex_int_offset2 returned one ExPolygon';
+    is Math::Clipper::area($ccw), Math::Clipper::area($res->[0]{outer}), 'ex_int_offset2 performed double offset';
+}
+
+__END__

@@ -1,5 +1,11 @@
 Revision history for Perl extension Math::Clipper.
 
+1.18  Sun Mar 31 12:46:00 2013
+
+  - new int_offset()
+  - new ex_int_offset()
+  - new ex_int_offset2()
+
 1.17  Tue Jan 15 14:07:00 2013
 
   - Expose PFT_POSITIVE and PFT_NEGATIVE constants.
