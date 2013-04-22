@@ -12,7 +12,7 @@ our @ISA = qw(Exporter);
 
 BEGIN {
     use XSLoader;
-    $VERSION = '1.18';
+    $VERSION = '1.19';
     XSLoader::load('Math::Clipper', $VERSION);
 }
 
@@ -567,7 +567,7 @@ L<http://sourceforge.net/projects/polyclipping/>
 
 =head1 VERSION
 
-This module was built around, and includes, Clipper version 5.0.3.
+This module was built around, and includes, Clipper version 5.1.4.
 
 =head1 AUTHOR
 
