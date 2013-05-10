@@ -12,7 +12,7 @@ our @ISA = qw(Exporter);
 
 BEGIN {
     use XSLoader;
-    $VERSION = '1.20';
+    $VERSION = '1.21';
     XSLoader::load('Math::Clipper', $VERSION);
 }
 
@@ -281,6 +281,28 @@ an I<ExPolygon> is as follows,:
   
   }
 
+Clipper additionally offers an export type named I<PolyTree> which represents several
+nested polygons by assigning each one to its parent. The I<PolyTree> structure is an
+arrayref looking like this one:
+
+  [
+      { outer => [ ..points.. ], children => [] },
+      {
+         outer => [ ..points.. ],
+         children => [
+            { hole => [ ..points.. ], children => [] },
+            { hole => [ ..points.. ], children => [] },
+         ],
+      }
+  ]
+
+Each item is a hashref which may contain either the I<contour> or the I<hole>
+key, containing the polygon points. It also contains a I<children> key containing
+an arrayref of hashrefs itself, and so on.
+The Clipper documentation reports that it's more computationally expensive to process 
+(roughly 5-10% slower), it should only be used when parent-child polygon relationships 
+are needed and not just polygon coordinates.
+
 The "fill type" of a polygon refers to the strategy used to determine
 which side of a polygon is the inside, and whether a polygon represents
 a filled region, or a hole. You may optionally specify the fill type of
@@ -349,6 +371,11 @@ used.
 
 Like C<execute>, performs the actual clipping operation, but
 returns a reference to an array of ExPolygons. (see L</CONVENTIONS>)
+
+=head2 pt_execute
+
+Like C<execute>, performs the actual clipping operation, but
+returns a PolyTree structure. (see L</CONVENTIONS>)
 
 =head2 clear
 
@@ -462,6 +489,15 @@ If floats are supplied to it, their decimal digits will be truncated so the offs
 work on invalid geometry (truncation can lead to self-intersecting polygons). Be sure to
 only use this one if your input polygons only have integer coordinates.
 
+=head2 int_offset2
+
+    my $offset_polygons = int_offset($polygons, $distance1, $distance2, $scale, $jointype, $miterlimit);
+
+This function works like int_offset() but it does two consecutive offsets with the given 
+distances. The purpose of the I<*offset2> functions is to avoid overhead when two consecutive
+offsets are needed (scaling/unscaling only happens once, and no conversion to Perl variables
+happens in between).
+
 =head2 ex_int_offset
 
     my $offset_expolygons = ex_int_offset($polygons, $distance, $scale, $jointype, $miterlimit);
@@ -567,7 +603,7 @@ L<http://sourceforge.net/projects/polyclipping/>
 
 =head1 VERSION
 
-This module was built around, and includes, Clipper version 5.1.4.
+This module was built around, and includes, Clipper version 5.1.5.
 
 =head1 AUTHOR
 
