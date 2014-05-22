@@ -3,6 +3,7 @@ Changes
 lib/Math/Clipper.pm
 MANIFEST			This list of files
 MANIFEST.SKIP
+META.json
 META.yml
 src/clipper.cpp
 src/clipper.hpp
@@ -25,4 +26,3 @@ t/012_polytree.t
 xsp/Clipper.xsp
 xsp/my.map
 xsp/types.xspt
-META.json
